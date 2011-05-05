@@ -16,6 +16,8 @@ var mapnik = require('mapnik')
   , port = 3000;
 
 
+var stylesheet = path.join(__dirname, '../../stylesheet.xml');
+
 var server = connect.createServer(  
   
   connect.logger('\033[90m:method\033[0m \033[36m:url\033[0m \033[90m:status :response-timems -> :res[Content-Type]\033[0m')  
@@ -33,18 +35,19 @@ var server = connect.createServer(
       
         // create map
         var map = new mapnik.Map(256, 256, mercator.srs);
-        map.load(path.join(__dirname, '../../stylesheet.xml'));
-        map.zoom_all();
-                  
-        // render map
-        map.render(bbox, 'png', function(err, buffer) {
-          if (err) {
-            throw err;
-          } else {
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'image/png');        
-            res.end(buffer);            
-          }
+        map.load(stylesheet, {strict:true}, function(err, map) {
+            map.zoom_all();
+                      
+            // render map
+            map.render(bbox, 'png', function(err, buffer) {
+              if (err) {
+                throw err;
+              } else {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'image/png');        
+                res.end(buffer);            
+              }
+            });
         });
       }
       catch (err) {        
