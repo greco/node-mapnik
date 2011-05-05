@@ -177,7 +177,7 @@ def configure(conf):
 
     else:
 
-        prefix = "/usr/local"
+        prefix_guess = "/usr/local"
 
         import platform
         if platform.dist()[0] in ('Ubuntu','debian'):
@@ -200,7 +200,7 @@ def configure(conf):
             conf.env.append_value("LIB_MAPNIK", "mapnik")
 
         # add path of mapnik lib
-        conf.env.append_value("LIBPATH_MAPNIK", "%s/%s" % (prefix,LIBDIR_SCHEMA))
+        conf.env.append_value("LIBPATH_MAPNIK", "%s/%s" % (prefix_guess,LIBDIR_SCHEMA))
         ldflags = []
         if platform.uname()[0] == "Darwin":
             ldflags.append('-L/usr/X11/lib/')
@@ -211,7 +211,7 @@ def configure(conf):
             conf.env.append_value("LDFLAGS", ldflags)
 
         # add path of mapnik headers
-        conf.env.append_value("CPPPATH_MAPNIK", "%s/include" % prefix)
+        conf.env.append_value("CPPPATH_MAPNIK", "%s/include" % prefix_guess)
 
         # add paths for freetype, boost, icu, as needed
         cxxflags = popen("freetype-config --cflags").readline().strip().split(' ')
@@ -221,11 +221,11 @@ def configure(conf):
 
         # settings for fonts and input plugins
         if MAPNIK2:
-            settings_dict['input_plugins'] = "%s/%s/mapnik2/input" % (prefix,LIBDIR_SCHEMA)
-            settings_dict['fonts'] = "%s/%s/mapnik2/fonts" % (prefix,LIBDIR_SCHEMA)
+            settings_dict['input_plugins'] = "%s/%s/mapnik2/input" % (prefix_guess,LIBDIR_SCHEMA)
+            settings_dict['fonts'] = "%s/%s/mapnik2/fonts" % (prefix_guess,LIBDIR_SCHEMA)
         else:
-            settings_dict['input_plugins'] = "%s/lib/mapnik/input" % prefix
-            settings_dict['fonts'] = "%s/lib/mapnik/fonts" % prefix
+            settings_dict['input_plugins'] = "%s/lib/mapnik/input" % prefix_guess
+            settings_dict['fonts'] = "%s/lib/mapnik/fonts" % prefix_guess
 
     write_mapnik_settings(**settings_dict)
 
@@ -246,10 +246,10 @@ def build(bld):
     obj.uselib = "MAPNIK"
     # install 'mapnik' module
     lib_dir = bld.path.find_dir('./lib')
-    bld.install_files('${PREFIX}/lib/node/mapnik', lib_dir.ant_glob('**/*'), cwd=lib_dir, relative_trick=True)
+    bld.install_files('${LIBPATH_NODE}/node/mapnik', lib_dir.ant_glob('**/*'), cwd=lib_dir, relative_trick=True)
     # install command line programs
     bin_dir = bld.path.find_dir('./bin')
-    bld.install_files('${PREFIX}/bin', bin_dir.ant_glob('*'), cwd=bin_dir, relative_trick=True, chmod=0755)
+    bld.install_files('${PREFIX_NODE}/bin', bin_dir.ant_glob('*'), cwd=bin_dir, relative_trick=True, chmod=0755)
 
 
 def shutdown():
